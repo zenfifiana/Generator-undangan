@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fffdf9">
+    <title>Zaenal & Fifiana</title>
+
+    <style>
+/* =========================================================
+   01. RESET & BASE STYLE
+========================================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background-color: #2b1d19; /* Latar belakang luar kertas */
+    color: #4b3028;
+    font-family: Georgia, "Times New Roman", serif;
+    perspective: 1500px; /* Memberikan efek kedalaman 3D */
+}
+
+:root {
+    --warna-dasar: #fffdf9;
+    --warna-teks: #4b3028;
+    --warna-coklat: #8b634f;
+    --warna-coklat-gelap: #6f4939;
+    --warna-krem: #eadfd5;
+    --warna-krem-muda: #f5eee8;
+    --warna-putih: #ffffff;
+    --bayangan: 0 4px 15px rgba(75, 48, 40, 0.12);
+}
+
+/* =========================================================
+   02. SISTEM HALAMAN (EFEK BUKU / MEMBALIK KERTAS)
+========================================================= */
+.halaman {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 90px 20px;
+    text-align: center;
+    overflow: hidden;
+    background-color: var(--warna-dasar);
+    isolation: isolate;
+
+    /* Pengaturan 3D Flip */
+    transform-origin: left center;
+    backface-visibility: hidden;
+    transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), 
+                opacity 0.8s ease;
+    
+    /* Keadaan Default (Halaman Belum Aktif) */
+    opacity: 0;
+    pointer-events: none;
+    transform: rotateY(-90deg);
+    z-index: 1;
+}
+
+/* Halaman Aktif (Terbuka Lurus) */
+.halaman.aktif {
+    opacity: 1;
+    pointer-events: auto;
+    transform: rotateY(0deg);
+    z-index: 10;
+}
+
+/* Halaman yang Sudah Dilewati */
+.halaman.terbalik {
+    opacity: 0;
+    pointer-events: none;
+    transform: rotateY(-180deg);
+    z-index: 5;
+}
+
+/* =========================================================
+   03. ORNAMEN BATIK (FULL BACKGROUND)
+========================================================= */
+.batik {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    background-image: url("batik.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* =========================================================
+   04. CONTENT UMUM
+========================================================= */
+.content {
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    z-index: 5;
+}
+
+.judul-kecil {
+    font-size: 16px;
+    letter-spacing: 3px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    text-transform: lowercase;
+}
+
+.judul-halaman {
+    font-size: 15px;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.content p {
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* =========================================================
+   05. COVER
+========================================================= */
+.cover-content {
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+}
+
+.nama-pengantin {
+    font-family: "Brush Script MT", "Segoe Script", cursive;
+    font-weight: normal;
+    color: var(--warna-teks);
+    line-height: 1.05;
+}
+
+.cover .nama-pengantin {
+    font-size: clamp(44px, 13vw, 58px);
+    margin-bottom: 20px;
+}
+
+.tanggal {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+}
+
+.tamu-label {
+    font-size: 13px;
+    margin-bottom: 5px;
+    opacity: 0.8;
+}
+
+.nama-tamu {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--warna-teks);
+    margin-bottom: 25px;
+    line-height: 1.3;
+}
+
+.tombol-buka {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 150px;
+    min-height: 44px;
+    padding: 11px 25px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--warna-coklat);
+    color: var(--warna-putih);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--bayangan);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.tombol-buka:hover { background-color: var(--warna-coklat-gelap); }
+.tombol-buka:active { transform: scale(0.95); }
+
+/* =========================================================
+   06. HALAMAN AYAT, MEMPELAI, SALAM
+========================================================= */
+.ayat-content h2 {
+    direction: rtl;
+    font-size: clamp(25px, 7vw, 34px);
+    font-weight: normal;
+    line-height: 2;
+    margin-bottom: 22px;
+}
+
+.mempelai-content .nama-pengantin {
+    font-size: clamp(42px, 12vw, 55px);
+    margin-bottom: 8px;
+}
+
+.dan {
+    margin: 12px 0;
+    font-family: "Brush Script MT", "Segoe Script", cursive;
+    font-size: 30px !important;
+}
+
+.salam-arab {
+    direction: rtl;
+    font-size: clamp(25px, 7vw, 34px) !important;
+    line-height: 2;
+    margin-bottom: 28px;
+}
+
+/* =========================================================
+   07. HALAMAN ACARA
+========================================================= */
+.acara-title h2 {
+    font-size: 26px;
+    font-weight: normal;
+    margin-bottom: 20px;
+}
+
+.acara-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.acara-card {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid rgba(75, 48, 40, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 253, 249, 0.9);
+    box-shadow: 0 3px 12px rgba(75, 48, 40, 0.07);
+}
+
+.nama-acara {
+    font-size: 18px;
+    font-weight: normal;
+    margin-bottom: 8px;
+}
+
+.tanggal-acara {
+    font-size: 12px !important;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.jam-acara { font-size: 14px !important; margin-bottom: 7px; }
+.lokasi-acara { font-size: 13px !important; line-height: 1.6 !important; margin-bottom: 10px; }
+
+.tombol-maps {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 37px;
+    padding: 8px 18px;
+    border-radius: 25px;
+    background-color: var(--warna-coklat);
+    color: var(--warna-putih);
+    font-size: 12px;
+    text-decoration: none;
+    box-shadow: 0 3px 8px rgba(75, 48, 40, 0.12);
+}
+
+/* =========================================================
+   08. HALAMAN COUNTDOWN
+========================================================= */
+.countdown-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.countdown-box {
+    width: 62px;
+    padding: 10px 4px;
+    border-radius: 10px;
+    background-color: var(--warna-krem);
+    box-shadow: 0 3px 8px rgba(75, 48, 40, 0.08);
+}
+
+.countdown-number {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.countdown-label {
+    display: block;
+    margin-top: 5px;
+    font-size: 10px;
+}
+
+.countdown-separator {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--warna-coklat);
+}
+
+.countdown-selesai {
+    display: none;
+    font-family: "Brush Script MT", "Segoe Script", cursive;
+    font-size: clamp(28px, 8vw, 40px);
+    margin-top: 10px;
+}
+
+/* =========================================================
+   09. HALAMAN UCAPAN & KOMENTAR
+========================================================= */
+.ucapan-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+#pesanUcapan {
+    width: 100%;
+    height: 65px;
+    padding: 10px;
+    resize: none;
+    border: 1px solid rgba(75, 48, 40, 0.2);
+    border-radius: 10px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--warna-teks);
+    font-family: Georgia, serif;
+    font-size: 12px;
+}
+
+.tombol-kirim {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 38px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--warna-coklat);
+    color: var(--warna-putih);
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: var(--bayangan);
+}
+
+.wadah-komentar {
+    width: 100%;
+    max-height: 160px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 5px;
+    text-align: left;
+}
+
+.item-komentar {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--warna-coklat);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.nama-komentator {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--warna-coklat-gelap);
+    margin-bottom: 3px;
+}
+
+.isi-komentar {
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* =========================================================
+   10. NAVIGASI HALAMAN & MUSIK
+========================================================= */
+.navigasi {
+    position: absolute;
+    left: 0;
+    bottom: 20px;
+    z-index: 100;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    pointer-events: auto;
+}
+
+.tombol-navigasi {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 105px;
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 1px solid rgba(75, 48, 40, 0.14);
+    border-radius: 30px;
+    background: rgba(255, 253, 249, 0.95);
+    color: var(--warna-teks);
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(75, 48, 40, 0.10);
+}
+
+.tombol-navigasi.sembunyi { display: none; }
+
+.tombol-musik {
+    position: fixed;
+    right: 16px;
+    bottom: 17px;
+    z-index: 9999;
+    width: 43px;
+    height: 43px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(75, 48, 40, 0.14);
+    border-radius: 50%;
+    background: rgba(255, 253, 249, 0.95);
+    color: var(--warna-teks);
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(75, 48, 40, 0.15);
+}
+
+.tombol-musik.aktif { display: flex; }
+
+/* ANIMASI MUNCUL */
+@keyframes munculKeAtas {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.halaman.aktif .content > *,
+.halaman.aktif .cover-content > * {
+    animation: munculKeAtas 0.8s ease-out forwards;
+}
+    </style>
+</head>
+
+<body>
+
+    <audio id="musikUndangan" loop preload="auto">
+        <source src="musik.mp3" type="audio/mpeg">
+    </audio>
+
+    <button id="tombolMusik" class="tombol-musik" type="button" aria-label="Putar musik">▶</button>
+
+    <!-- 1. COVER -->
+    <section class="halaman aktif" id="cover">
+        <div class="batik"></div>
+        <div class="content cover-content">
+            <p class="judul-kecil">The Wedding Of</p>
+            <h1 class="nama-pengantin">Zaenal &amp; Fifiana</h1>
+            <p class="tanggal">29 AGUSTUS 2026</p>
+            <div class="tamu-undangan">
+                <p class="tamu-label">Kepada Yth.</p>
+                <p id="namaTamu" class="nama-tamu">Tamu Undangan</p>
+            </div>
+            <button id="tombolBuka" class="tombol-buka" type="button">Buka Undangan</button>
+        </div>
+    </section>
+
+    <!-- 2. AYAT AL-QUR'AN -->
+    <section class="halaman" id="ayat">
+        <div class="batik"></div>
+        <div class="content ayat-content">
+            <p class="judul-kecil">Ayat Suci Al-Qur'an</p>
+            <h2>وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</h2>
+            <p>"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri supaya kamu merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang."</p>
+        </div>
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+            <button class="tombol-navigasi selanjutnya" type="button">Selanjutnya →</button>
+        </div>
+    </section>
+
+    <!-- 3. PROFIL MEMPELAI -->
+    <section class="halaman" id="mempelai">
+        <div class="batik"></div>
+        <div class="content mempelai-content">
+            <p class="judul-kecil">Mempelai</p>
+            <h2 class="nama-pengantin">Fifiana Fradika Natasya</h2>
+            <p>Putri dari Bapak Sukemi &amp; Ibu Suhartatik</p>
+            <p class="dan">&amp;</p>
+            <h2 class="nama-pengantin">Ahmad Zaenal Arifin</h2>
+            <p>Putra dari Bapak Masykur Hasyim &amp; Ibu Ela Nur Laila</p>
+        </div>
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+            <button class="tombol-navigasi selanjutnya" type="button">Selanjutnya →</button>
+        </div>
+    </section>
+
+    <!-- 4. SALAM -->
+    <section class="halaman" id="salam">
+        <div class="batik"></div>
+        <div class="content salam-content">
+            <p class="salam-arab">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
+            <p class="salam-text">Dengan memohon rahmat dan ridho Allah SWT, dengan segala kerendahan hati kami memohon kehadiran Bapak/Ibu/Saudara/i untuk memberikan doa dan restu pada acara pernikahan kami.</p>
+        </div>
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+            <button class="tombol-navigasi selanjutnya" type="button">Selanjutnya →</button>
+        </div>
+    </section>
+
+    <!-- 5. AKAD & ACARA -->
+    <section class="halaman" id="acara">
+        <div class="batik"></div>
+        <div class="content acara-content">
+            <div class="acara-title">
+                <h2>Waktu &amp; Tempat</h2>
+            </div>
+            <div class="acara-container">
+                <div class="acara-card">
+                    <h3 class="nama-acara">Akad Nikah</h3>
+                    <p class="tanggal-acara">SABTU, 29 AGUSTUS 2026</p>
+                    <p class="jam-acara">Pukul 08.00 WIB</p>
+                    <p class="lokasi-acara">Lokasi Akad<br>Jl. ................</p>
+                    <a href="https://maps.google.com/" target="_blank" class="tombol-maps">Buka Google Maps</a>
+                </div>
+                <div class="acara-card">
+                    <h3 class="nama-acara">Resepsi</h3>
+                    <p class="tanggal-acara">SABTU, 29 AGUSTUS 2026</p>
+                    <p class="jam-acara">Pukul 11.00 WIB - Selesai</p>
+                    <p class="lokasi-acara">Lokasi Resepsi<br>dsn.Tirim Kidul, Ds.Tampung Rejo, puri mojokerto</p>
+                    <a href="https://maps.google.com/" target="_blank" class="tombol-maps">Buka Google Maps</a>
+                </div>
+            </div>
+        </div>
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+            <button class="tombol-navigasi selanjutnya" type="button">Selanjutnya →</button>
+        </div>
+    </section>
+
+    <!-- 6. COUNTDOWN -->
+    <section class="halaman" id="countdown">
+        <div class="batik"></div>
+        <div class="content countdown-content">
+            <div class="countdown-title">
+                <h2>Menuju Hari Bahagia</h2>
+                <p>Kami menantikan hari istimewa bersama keluarga dan orang-orang terkasih.</p>
+            </div>
+            <div class="countdown-container" id="countdownContainer">
+                <div class="countdown-box">
+                    <span class="countdown-number" id="hari">00</span>
+                    <span class="countdown-label">Hari</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="jam">00</span>
+                    <span class="countdown-label">Jam</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="menit">00</span>
+                    <span class="countdown-label">Menit</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="detik">00</span>
+                    <span class="countdown-label">Detik</span>
+                </div>
+            </div>
+            <div id="countdownSelesai" class="countdown-selesai">
+                Hari bahagia telah tiba
+            </div>
+        </div>
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+            <button class="tombol-navigasi selanjutnya" type="button">Selanjutnya →</button>
+        </div>
+    </section>
+
+    <!-- 7. UCAPAN & DOA -->
+    <section class="halaman" id="ucapan">
+        <div class="batik"></div>
+        <div class="content">
+            <div class="ucapan-title">
+                <h2>Ucapan &amp; Doa</h2>
+            </div>
+            <p style="font-family: 'Brush Script MT', cursive; font-size: 24px; margin-bottom: 8px;">Barakallahu lakuma</p>
+            
+            <form class="ucapan-form" id="formUcapan">
+                <textarea id="pesanUcapan" placeholder="Tuliskan ucapan dan doa Anda..." required></textarea>
+                <button type="submit" class="tombol-kirim">Kirim Ucapan</button>
+            </form>
+
+            <div class="wadah-komentar" id="wadahKomentar">
+                </div>
+            </div>
+        </div>
+
+        <div class="navigasi">
+            <button class="tombol-navigasi sebelumnya" type="button">← Sebelumnya</button>
+        </div>
+    </section>
+
+    <script>
+    /* 1. MENGAMBIL NAMA TAMU DARI URL PARAMETER (?to=NamaTamu ATAU ?tamu=NamaTamu) */
+    const urlParams = new URLSearchParams(window.location.search);
+    let namaTamuURL = urlParams.get("to") || urlParams.get("tamu");
+    
+    if (namaTamuURL) {
+        namaTamuURL = namaTamuURL.replace(/\+/g, " ");
+        document.getElementById("namaTamu").textContent = namaTamuURL;
+    } else {
+        namaTamuURL = "Tamu Undangan";
+    }
+
+    /* 2. SYSTEM FLIP NAVIGASI (HANYA DITULIS 1 KALI) */
+    const halaman = document.querySelectorAll(".halaman");
+    let halamanSekarang = 0;
+
+    function tampilkanHalaman(index) {
+        if (index < 0) index = 0;
+        if (index >= halaman.length) index = halaman.length - 1;
+
+        halaman.forEach((section, i) => {
+            section.classList.remove("aktif", "terbalik");
+
+            if (i < index) {
+                section.classList.add("terbalik");
+            } else if (i === index) {
+                section.classList.add("aktif");
+            }
+        });
+
+        halamanSekarang = index;
+        updateNavigasi();
+    }
+
+    function updateNavigasi() {
+        halaman.forEach((section, index) => {
+            const tombolSebelumnya = section.querySelector(".sebelumnya");
+            const tombolSelanjutnya = section.querySelector(".selanjutnya");
+
+            if (tombolSebelumnya) {
+                if (index === 0) tombolSebelumnya.classList.add("sembunyi");
+                else tombolSebelumnya.classList.remove("sembunyi");
+            }
+
+            if (tombolSelanjutnya) {
+                if (index === halaman.length - 1) tombolSelanjutnya.classList.add("sembunyi");
+                else tombolSelanjutnya.classList.remove("sembunyi");
+            }
+        });
+    }
+
+    document.querySelectorAll(".sebelumnya").forEach(button => {
+        button.addEventListener("click", () => tampilkanHalaman(halamanSekarang - 1));
+    });
+
+    document.querySelectorAll(".selanjutnya").forEach(button => {
+        button.addEventListener("click", () => tampilkanHalaman(halamanSekarang + 1));
+    });
+
+    /* 3. COVER & MUSIK */
+    const tombolBuka = document.getElementById("tombolBuka");
+    const musik = document.getElementById("musikUndangan");
+    const tombolMusik = document.getElementById("tombolMusik");
+
+    if (tombolBuka) {
+        tombolBuka.addEventListener("click", function() {
+            if (musik) {
+                musik.play().then(() => {
+                    tombolMusik.classList.add("aktif");
+                    tombolMusik.textContent = "❚❚";
+                }).catch(() => {
+                    tombolMusik.classList.add("aktif");
+                });
+            }
+            tampilkanHalaman(1);
+        });
+    }
+
+    if (tombolMusik) {
+        tombolMusik.addEventListener("click", function() {
+            if (musik.paused) {
+                musik.play().then(() => {
+                    tombolMusik.textContent = "❚❚";
+                    tombolMusik.setAttribute("aria-label", "Jeda musik");
+                });
+            } else {
+                musik.pause();
+                tombolMusik.textContent = "▶";
+                tombolMusik.setAttribute("aria-label", "Putar musik");
+            }
+        });
+    }
+
+    /* 4. COUNTDOWN */
+    const tanggalAcara = new Date("2026-08-29T08:00:00+07:00").getTime();
+    let intervalCountdown;
+
+    function updateCountdown() {
+        const sekarang = new Date().getTime();
+        const selisih = tanggalAcara - sekarang;
+
+        const elemenContainer = document.getElementById("countdownContainer");
+        const elemenSelesai = document.getElementById("countdownSelesai");
+
+        if (selisih <= 0) {
+            if (elemenContainer) elemenContainer.style.display = "none";
+            if (elemenSelesai) elemenSelesai.style.display = "block";
+            if (intervalCountdown) clearInterval(intervalCountdown);
+            return;
+        }
+
+        const hari = Math.floor(selisih / (1000 * 60 * 60 * 24));
+        const jam = Math.floor((selisih / (1000 * 60 * 60)) % 24);
+        const menit = Math.floor((selisih / (1000 * 60)) % 60);
+        const detik = Math.floor((selisih / 1000) % 60);
+
+        document.getElementById("hari").textContent = String(hari).padStart(2, "0");
+        document.getElementById("jam").textContent = String(jam).padStart(2, "0");
+        document.getElementById("menit").textContent = String(menit).padStart(2, "0");
+        document.getElementById("detik").textContent = String(detik).padStart(2, "0");
+    }
+
+    updateCountdown();
+    intervalCountdown = setInterval(updateCountdown, 1000);
+
+    /* 5. FORM KOMENTAR INSTAN & HAPUS KOMENTAR */
+    const formUcapan = document.getElementById("formUcapan");
+    const pesanUcapan = document.getElementById("pesanUcapan");
+    const wadahKomentar = document.getElementById("wadahKomentar");
+
+    if (formUcapan) {
+        formUcapan.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const isiPesan = pesanUcapan.value.trim();
+            if (isiPesan === "") return;
+
+            // Buat elemen komentar baru
+            const komentarBaru = document.createElement("div");
+            komentarBaru.className = "item-komentar";
+            
+            // Tambahkan tombol Hapus di sebelah kanan atas komentar
+            komentarBaru.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                    <div class="nama-komentator">${namaTamuURL}</div>
+                    <button type="button" class="tombol-hapus-komentar" style="background: none; border: none; color: #a94442; font-size: 11px; cursor: pointer; text-decoration: underline;">Hapus</button>
+                </div>
+                <div class="isi-komentar">${isiPesan}</div>
+            `;
+
+            // Event listener untuk tombol hapus
+            const tombolHapus = komentarBaru.querySelector(".tombol-hapus-komentar");
+            tombolHapus.addEventListener("click", function() {
+                if (confirm("Apakah Anda yakin ingin menghapus ucapan ini?")) {
+                    komentarBaru.remove();
+                }
+            });
+
+            // Masukkan ke posisi paling atas
+            wadahKomentar.insertBefore(komentarBaru, wadahKomentar.firstChild);
+            pesanUcapan.value = "";
+            wadahKomentar.scrollTop = 0;
+        });
+    }
+    </script>
+</body>
+</html>
